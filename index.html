@@ -1,0 +1,280 @@
+(function() {
+  const htmlContent = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>카카오페이</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="카카오페이">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#FFFFFF">
+  <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/e/e3/KakaoTalk_logo.svg">
+  <style>
+    :root { --bg-white: #FFFFFF; --bg-card: #F2F4F6; --border-line: #E5E8EB; --text-main: #191F28; --text-sub: #8B95A1; --blue-down: #1E6FD9; --red-up: #F04438; --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px); }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; }
+    body { background-color: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; overscroll-behavior-y: none; }
+    #app-container { width: 100%; max-width: 430px; height: 100vh; background-color: var(--bg-white); overflow-y: auto; position: relative; padding-top: var(--safe-top); padding-bottom: calc(var(--safe-bottom) + 75px); box-shadow: 0 0 35px rgba(0,0,0,0.4); }
+    #app-container::-webkit-scrollbar { display: none; }
+    .view { display: none; width: 100%; animation: fadeIn 0.15s ease-out; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+    .home-header { padding: 12px 18px 8px; display: flex; justify-content: space-between; align-items: center; }
+    .market-badge-group { display: flex; align-items: center; gap: 6px; font-size: 14.5px; font-weight: 700; color: var(--text-main); }
+    .flag { width: 15px; height: 15px; border-radius: 50%; vertical-align: middle; }
+    .header-icons { display: flex; align-items: center; gap: 16px; }
+    .icon-btn { cursor: pointer; display: flex; align-items: center; }
+    .quick-nav { display: flex; gap: 12px; padding: 14px 18px; overflow-x: auto; scrollbar-width: none; }
+    .quick-nav::-webkit-scrollbar { display: none; }
+    .quick-item { display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 52px; }
+    .quick-icon-box { width: 48px; height: 48px; border-radius: 18px; background: var(--bg-card); display: flex; justify-content: center; align-items: center; position: relative; }
+    .red-dot { position: absolute; top: 2px; right: 2px; width: 6px; height: 6px; background: var(--red-up); border-radius: 50%; }
+    .quick-label { font-size: 11.5px; font-weight: 500; color: #4E5968; white-space: nowrap; }
+    .slider-indicator { width: 40px; height: 3px; background: #E5E8EB; border-radius: 2px; margin: 2px auto 14px; position: relative; }
+    .slider-active { width: 20px; height: 3px; background: #4E5968; border-radius: 2px; }
+    .account-section { padding: 0 18px; }
+    .account-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .account-select { display: flex; align-items: center; gap: 4px; font-size: 19px; font-weight: 700; color: var(--text-main); }
+    .btn-view-account { font-size: 13px; font-weight: 500; color: var(--text-sub); cursor: pointer; }
+    .balance-card { background: var(--bg-card); border-radius: 16px; padding: 16px 20px; display: flex; }
+    .balance-col { flex: 1; }
+    .balance-col:first-child { border-right: 1px solid var(--border-line); padding-right: 12px; }
+    .balance-col:last-child { padding-left: 16px; }
+    .balance-label { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+    .balance-val { font-size: 17px; font-weight: 700; color: var(--text-main); }
+    .link-list { padding: 8px 18px; }
+    .link-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; font-size: 14.5px; font-weight: 600; color: var(--text-main); border-bottom: 0.5px solid var(--bg-card); cursor: pointer; }
+    .chevron { stroke: #B0B8C1; }
+    .divider { height: 9px; background: var(--bg-card); width: 100%; margin: 12px 0 16px; }
+    .forum-section { padding: 0 18px; }
+    .forum-header { display: flex; align-items: center; gap: 5px; font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; }
+    .forum-card { border: 1px solid #EAECEF; border-radius: 18px; padding: 16px; }
+    .badge-stock { background: var(--red-up); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+    .rate-down { font-size: 12px; font-weight: 600; color: var(--blue-down); }
+    .forum-content { font-size: 13.5px; color: #333D4B; line-height: 1.4; margin-top: 8px; }
+    .acc-nav { padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
+    .acc-title { font-size: 17px; font-weight: 700; color: var(--text-main); }
+    .acc-actions { display: flex; align-items: center; gap: 14px; font-size: 14px; color: #4E5968; }
+    .acc-num-bar { background: #F4F8FD; padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: #6B7684; }
+    .btn-acc-switch { color: var(--blue-down); font-weight: 600; display: flex; align-items: center; gap: 2px; cursor: pointer; }
+    .asset-info-box { padding: 20px 18px 12px; }
+    .asset-headline { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; }
+    .total-amount-row { display: flex; align-items: center; gap: 7px; }
+    .total-amount-val { font-size: 28px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+    .question-circle { width: 17px; height: 17px; background: #E5E8EB; color: #8B95A1; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .profit-row { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+    .profit-label { font-size: 12.5px; color: var(--text-sub); margin-bottom: 2px; }
+    .profit-val { font-size: 14px; font-weight: 700; color: var(--blue-down); }
+    .profit-val.up { color: var(--red-up); }
+    .btn-more { font-size: 12px; color: #4E5968; border: 1px solid #D1D6DB; padding: 5px 12px; border-radius: 14px; }
+    .notice-card { margin: 14px 18px; background: var(--bg-card); border-radius: 14px; padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; }
+    .three-buttons { margin: 0 18px 18px; background: var(--bg-card); border-radius: 18px; display: flex; height: 48px; align-items: center; }
+    .btn-3 { flex: 1; text-align: center; font-size: 14.5px; font-weight: 700; color: #333D4B; position: relative; }
+    .btn-3:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 30%; height: 40%; width: 1px; background: #D1D6DB; }
+    .detail-breakdown { padding: 0 18px; }
+    .detail-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 0.5px solid var(--bg-card); }
+    .detail-item-title { font-size: 15px; font-weight: 600; color: var(--text-main); }
+    .detail-item-right { display: flex; align-items: center; gap: 6px; text-align: right; }
+    .val-primary { font-size: 15px; font-weight: 700; color: var(--text-main); }
+    .val-secondary { font-size: 11.5px; color: var(--text-sub); }
+    .stock-list-card { margin-top: 10px; background: #FAFAFB; border-radius: 12px; padding: 10px 14px; }
+    .stock-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+    .stock-row:not(:last-child) { border-bottom: 0.5px solid #EEF0F2; }
+    .banner-card { margin: 18px; display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #FFFFFF; border-radius: 14px; border: 1px solid #F0F2F5; }
+    .floating-bar { position: fixed; bottom: calc(var(--safe-bottom) + 12px); left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; z-index: 100; width: calc(100% - 32px); max-width: 398px; }
+    .floating-circle-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(14px); box-shadow: 0 4px 18px rgba(0,0,0,0.12); display: flex; justify-content: center; align-items: center; cursor: pointer; }
+    .floating-pill { flex: 1; height: 48px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(14px); box-shadow: 0 4px 18px rgba(0,0,0,0.12); border-radius: 26px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; }
+    .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; font-weight: 600; color: #8B95A1; cursor: pointer; }
+    .tab.active { color: var(--text-main); }
+    #stealth-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65); z-index: 999; justify-content: center; align-items: flex-end; }
+    .sheet-body { background: #FFFFFF; width: 100%; max-width: 430px; border-radius: 24px 24px 0 0; padding: 24px 20px calc(var(--safe-bottom) + 24px); }
+    .sheet-header { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 12px; color: #6B7684; margin-bottom: 4px; font-weight: 600; }
+    .field input { width: 100%; padding: 10px 12px; border: 1px solid #D1D6DB; border-radius: 8px; font-size: 15px; outline: none; }
+    .btn-apply { width: 100%; padding: 14px; background: #FEE500; color: #191F28; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+    <div id="view-home" class="view active">
+      <div class="home-header">
+        <div class="market-badge-group">
+          <svg class="flag" viewBox="0 0 36 36"><circle fill="#ED1C24" cx="18" cy="18" r="18"/><path fill="#00247D" d="M0,18a18,18 0 0,0 18,18a9,9 0 0,0 0,-18z"/><circle fill="#fff" cx="18" cy="18" r="9"/><circle fill="#ED1C24" cx="18" cy="13.5" r="4.5"/><circle fill="#00247D" cx="18" cy="22.5" r="4.5"/></svg>
+          <span>애프터마켓</span>
+          <svg class="flag" style="margin-left: 4px;" viewBox="0 0 36 36"><rect fill="#BF0A30" width="36" height="36" rx="18"/><path stroke="#fff" stroke-width="3" d="M0 6h36M0 12h36M0 18h36M0 24h36M0 30h36"/><rect fill="#002868" width="18" height="18" rx="2"/></svg>
+          <span>프리마켓</span>
+        </div>
+        <div class="header-icons">
+          <div class="icon-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#191F28" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+          <div class="icon-btn" style="position: relative;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#191F28" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><div style="position: absolute; top: -1px; right: 0; width: 5px; height: 5px; background: #F04438; border-radius: 50%;"></div></div>
+          <div class="icon-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#191F28" stroke-width="2.3" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+        </div>
+      </div>
+      <div class="quick-nav">
+        <div class="quick-item"><div class="quick-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="#8B95A1"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div><span class="quick-label">전체메뉴</span></div>
+        <div class="quick-item"><div class="quick-icon-box"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F04438" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><span class="quick-label">주식모으기</span></div>
+        <div class="quick-item"><div class="quick-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="#E86C56"><rect x="2" y="5" width="20" height="14" rx="3"/><text x="12" y="15" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">₩</text></svg></div><span class="quick-label">ISA</span></div>
+        <div class="quick-item"><div class="quick-icon-box"><div class="red-dot"></div><svg width="20" height="20" viewBox="0 0 24 24" fill="#E87A36"><circle cx="12" cy="13" r="8"/><path d="M10 5h4v3h-4z"/></svg></div><span class="quick-label">연금</span></div>
+        <div class="quick-item"><div class="quick-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF5E00" stroke-width="2.5"><polyline points="7 17 17 7"/><polyline points="7 7 17 7 17 17"/></svg></div><span class="quick-label">실시간상승</span></div>
+        <div class="quick-item"><div class="quick-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="#F7A100"><circle cx="12" cy="12" r="10"/><text x="12" y="16" font-size="11" fill="#fff" text-anchor="middle" font-weight="900">₩</text></svg></div><span class="quick-label">축의금</span></div>
+      </div>
+      <div class="slider-indicator"><div class="slider-active"></div></div>
+      <div class="account-section">
+        <div class="account-title-bar">
+          <div class="account-select"><span>종합계좌</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191F28" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="btn-view-account" onclick="switchView('account')">계좌보기</div>
+        </div>
+        <div class="balance-card">
+          <div class="balance-col"><div class="balance-label">원화</div><div class="balance-val" id="h-krw">2,000,676원</div></div>
+          <div class="balance-col"><div class="balance-label">달러</div><div class="balance-val" id="h-usd">$1.62</div></div>
+        </div>
+      </div>
+      <div class="link-list">
+        <div class="link-row"><span>주문내역</span><svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+        <div class="link-row"><span>매매일지</span><svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+        <div class="link-row"><span>받은 배당</span><svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="divider"></div>
+      <div class="forum-section">
+        <div class="forum-header"><span>토론방 인기글</span><div class="question-circle">?</div></div>
+        <div class="forum-card">
+          <div style="display: flex; align-items: center; gap: 6px;"><span class="badge-stock">▶ SK하이닉스 토론방</span><span class="rate-down">▼ 2.93%</span></div>
+          <p class="forum-content">주식을 하다보면 '왜 좋은회사 좋은주식인데 가격이 매번 조정을 받지?' 이런생각이 문득 들 때가 많습니다. 지금은...</p>
+        </div>
+      </div>
+    </div>
+    <div id="view-account" class="view">
+      <div class="acc-nav">
+        <div class="icon-btn" onclick="switchView('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#191F28" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="acc-title">내 계좌</div>
+        <div class="acc-actions"><span>관리</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#191F28" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+      </div>
+      <div class="acc-num-bar"><span>종합계좌 020-10-217263</span><div class="btn-acc-switch"><span>계좌 바꾸기</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1E6FD9" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      <div class="asset-info-box">
+        <div class="asset-headline">계좌 총 자산</div>
+        <div class="total-amount-row"><span class="total-amount-val" id="d-total">2,003,167원</span><div class="question-circle" id="stealth-trigger">?</div></div>
+        <div class="profit-row">
+          <div><div class="profit-label">이번 달 계좌 수익률</div><div class="profit-val" id="d-rate">-41.53% (255,083원)</div></div>
+          <div class="btn-more">더보기</div>
+        </div>
+      </div>
+      <div class="notice-card">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 24px; height: 24px; background: #D1D6DB; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="#6B7684"><circle cx="12" cy="12" r="6"/></svg></div>
+          <div><div style="font-size: 11px; color: #8B95A1;">어제는?</div><div style="font-size: 13.5px; font-weight: 600; color: #333D4B;">내 주식에 변화가 없었어요</div></div>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="three-buttons"><div class="btn-3">충전</div><div class="btn-3">출금</div><div class="btn-3">환전</div></div>
+      <div class="detail-breakdown">
+        <div class="detail-item"><span class="detail-item-title">원화</span><div class="detail-item-right"><span class="val-primary" id="d-krw">2,000,676원</span><svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="detail-item"><span class="detail-item-title">달러</span><div class="detail-item-right"><div><div class="val-primary" id="d-usd">$1.62</div><div class="val-secondary">2,177원</div></div><svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="detail-item"><span class="detail-item-title">주식</span><div class="detail-item-right"><span class="val-primary" id="d-stocks">0원</span><svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+        <div class="stock-list-card" id="stock-list-wrap"></div>
+      </div>
+      <div class="banner-card">
+        <div style="display: flex; align-items: center; gap: 12px;"><div style="font-size: 22px;">🎁</div><div><div style="font-size: 11px; color: #FF7E36; font-weight: 600;">주식 빌려주기 오픈</div><div style="font-size: 13.5px; font-weight: 700; color: #333D4B;">1주만 있어도 보너스 받을 수 있어요</div></div></div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="divider"></div>
+      <div style="padding: 0 18px 20px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: #191F28; margin-bottom: 12px;">자산변동</div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 14px; font-weight: 600; color: #333D4B; display: flex; align-items: center; gap: 4px;">투자 리포트 <span style="width: 4px; height: 4px; background: #F04438; border-radius: 50%;"></span></div>
+          <div style="text-align: right;"><div style="font-size: 14px; font-weight: 700; color: #191F28;">0원</div><div style="font-size: 11px; color: #8B95A1;">0.00% &gt;</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="floating-bar">
+      <div class="floating-circle-btn" onclick="switchView('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#191F28" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="floating-pill">
+        <div class="tab active" onclick="switchView('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="#191F28"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>증권홈</span></div>
+        <div class="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B95A1" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>관심</span></div>
+        <div class="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B95A1" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 12l-4-4-4 4"/></svg><span>발견</span></div>
+        <div class="tab"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B95A1" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>소식</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="stealth-modal">
+    <div class="sheet-body">
+      <div class="sheet-header"><span>가상 자산 커스텀 세팅</span><span onclick="closeModal()" style="cursor: pointer;">&times;</span></div>
+      <div class="field"><label>계좌 총 자산</label><input type="text" id="cfg-total" value="28,450,120원"></div>
+      <div class="field"><label>수익률 표기 (예: +18.42% (3,420,000원))</label><input type="text" id="cfg-rate" value="+18.42% (3,420,000원)"></div>
+      <div class="field"><label>원화 보유액</label><input type="text" id="cfg-krw" value="5,210,000원"></div>
+      <div class="field"><label>달러 보유액</label><input type="text" id="cfg-usd" value="$1,240.50"></div>
+      <div class="field"><label>주식 총 평가액</label><input type="text" id="cfg-stocks" value="21,580,000원"></div>
+      <button class="btn-apply" onclick="saveData()">적용 및 화면 저장</button>
+    </div>
+  </div>
+  <script>
+    function switchView(name) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      if(name === 'account') { document.getElementById('view-account').classList.add('active'); }
+      else { document.getElementById('view-home').classList.add('active'); }
+      document.getElementById('app-container').scrollTo({ top: 0, behavior: 'instant' });
+    }
+    const holdings = [
+      { name: "삼성전자", count: "120주", price: "9,600,000원", diff: "+14.2%", up: true },
+      { name: "애플 (AAPL)", count: "18주", price: "5,480,000원", diff: "+24.8%", up: true },
+      { name: "엔비디아 (NVDA)", count: "10주", price: "6,500,000원", diff: "+48.5%", up: true }
+    ];
+    function renderHoldings() {
+      const el = document.getElementById('stock-list-wrap');
+      el.innerHTML = holdings.map(h => '<div class="stock-row"><div><div style="font-size: 14px; font-weight: 700; color: #191F28;">' + h.name + '</div><div style="font-size: 11.5px; color: #8B95A1;">' + h.count + '</div></div><div style="text-align: right;"><div style="font-size: 14px; font-weight: 700; color: #191F28;">' + h.price + '</div><div style="font-size: 11.5px; font-weight: 600; color: ' + (h.up ? '#F04438' : '#1E6FD9') + ';">' + h.diff + '</div></div></div>').join('');
+    }
+    let clicks = 0; let timer = null;
+    document.getElementById('stealth-trigger').addEventListener('click', () => {
+      clicks++; clearTimeout(timer);
+      if(clicks >= 3) { document.getElementById('stealth-modal').style.display = 'flex'; clicks = 0; }
+      timer = setTimeout(() => { clicks = 0; }, 600);
+    });
+    function closeModal() { document.getElementById('stealth-modal').style.display = 'none'; }
+    function saveData() {
+      const data = {
+        total: document.getElementById('cfg-total').value,
+        rate: document.getElementById('cfg-rate').value,
+        krw: document.getElementById('cfg-krw').value,
+        usd: document.getElementById('cfg-usd').value,
+        stocks: document.getElementById('cfg-stocks').value
+      };
+      localStorage.setItem('kpay_fake_data', JSON.stringify(data));
+      applyUI(data); closeModal();
+    }
+    function applyUI(d) {
+      document.getElementById('h-krw').innerText = d.krw;
+      document.getElementById('h-usd').innerText = d.usd;
+      document.getElementById('d-total').innerText = d.total;
+      document.getElementById('d-krw').innerText = d.krw;
+      document.getElementById('d-usd').innerText = d.usd;
+      document.getElementById('d-stocks').innerText = d.stocks;
+      const rateEl = document.getElementById('d-rate');
+      rateEl.innerText = d.rate;
+      rateEl.className = d.rate.startsWith('+') ? 'profit-val up' : 'profit-val';
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      renderHoldings();
+      const saved = localStorage.getItem('kpay_fake_data');
+      if(saved) {
+        const d = JSON.parse(saved);
+        applyUI(d);
+        document.getElementById('cfg-total').value = d.total;
+        document.getElementById('cfg-rate').value = d.rate;
+        document.getElementById('cfg-krw').value = d.krw;
+        document.getElementById('cfg-usd').value = d.usd;
+        document.getElementById('cfg-stocks').value = d.stocks;
+      }
+    });
+  <\/script>
+</body>
+</html>`;
+
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+})();
